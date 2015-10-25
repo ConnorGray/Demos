@@ -7,7 +7,7 @@ Source code for the demos found on [my website](http://www.connorgray.com/demos)
 $ git clone https://github.com/ConnorGray/demos
 ```
 ### Run
-Download the Dart language [pub package manager](https://www.dartlang.org/tools/pub/).
+Before running the commands below, download the Dart language [pub package manager](https://www.dartlang.org/tools/pub/).
 ```shell
 $ cd demos
 $ cd <demo-name>
