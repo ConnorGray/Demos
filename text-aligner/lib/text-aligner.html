@@ -4,8 +4,10 @@
 <link rel="import" href="../../packages/paper_elements/paper_button.html">
 <link rel="import" href="../../packages/paper_elements/paper_input_decorator.html">
 <link rel="import" href="../../packages/paper_elements/paper_autogrow_textarea.html">
+<link rel="import" href="../../packages/paper_elements/paper_radio_group.html">
+<link rel="import" href="../../packages/paper_elements/paper_radio_button.html">
 
-<polymer-element name="text-justifier">
+<polymer-element name="text-aligner">
   <template>
     <style>
      paper-button.colored {
@@ -24,20 +26,20 @@
           </paper-autogrow-textarea>
         </paper-input-decorator>
 
+        <paper-radio-group selected="{{selectedAlignment}}">
+          <paper-radio-button name="leftAlign" label="Left Align"></paper-radio-button>
+          <paper-radio-button name="rightAlign" label="Right Align"></paper-radio-button>
+          <paper-radio-button name="center" label="Center"></paper-radio-button>
+          <paper-radio-button name="justify" label="Justify"></paper-radio-button>
+        </paper-radio-group>
+        
         <paper-input value="{{columns | asInteger}}" label="Columns"></paper-input>
         
-        <!-- <paper-input-decorator label="Body" floatingLabel>
-        <paper-autogrow-textarea>
-        <textarea value="{{outputTextArea}}"></textarea>
-        </paper-autogrow-textarea>
-        </paper-input-decorator>
-        -->
-
         <div class="panel" style="white-space: pre; font-family: monospace;">{{outputText}}</div>
 
       </div>
     </div>
   </template>
-  <script type="application/dart" src="text-justifier.dart"></script>
+  <script type="application/dart" src="text-aligner.dart"></script>
 </polymer-element>
 

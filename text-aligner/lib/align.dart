@@ -1,4 +1,4 @@
-library jusifier;
+library align;
 
 String leftAlign(String text, int cols) {
   List<String> paragraphs = text.split('\n');
@@ -24,7 +24,6 @@ String leftAlign(String text, int cols) {
     lines.add(currentLine);
   }
 
-
   return lines.join('\n');
 }
 
@@ -38,4 +37,14 @@ String rightAlign(String text, int cols) {
   }
 
   return lines.join('\n');
+}
+
+String center(String text, int cols) {
+  
+  return text;
+}
+
+String justify(String text, int cols) {
+
+  return text;
 }

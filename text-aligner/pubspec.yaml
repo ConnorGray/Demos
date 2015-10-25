@@ -1,4 +1,4 @@
-name: text_justifier 
+name: text_aligner
 version: 0.0.1
 dependencies:
   polymer: any
