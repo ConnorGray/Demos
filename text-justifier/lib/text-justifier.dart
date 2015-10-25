@@ -1,7 +1,9 @@
 import 'dart:html';
+
 import 'package:polymer/polymer.dart';
 import 'package:polymer_expressions/polymer_expressions.dart';
 import 'package:polymer_expressions/filter.dart';
+
 import 'package:text_justifier/justify.dart' as justify;
 
 @CustomTag('text-justifier')
@@ -10,21 +12,23 @@ class TextJustifierElement extends PolymerElement {
   @observable String outputText = "";
   @observable int columns = 80;
 
-  TextJustifierElement.created() : super.created() {}
-
   final StringToInt asInteger = new StringToInt();
 
-  void _rejustify() {
-    this.outputText = justify.justify(this.inputText, this.columns);
+  TextJustifierElement.created() : super.created() {
+    _realign();
+  }
+
+  void _realign() {
+    this.outputText = justify.rightAlign(this.inputText, this.columns);
   }
 
   void inputTextChanged() {
-    _rejustify();
+    _realign();
   }
 
 
   void columnsChanged() {
-    _rejustify();
+    _realign();
   }
 }
 

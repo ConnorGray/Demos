@@ -1,31 +1,41 @@
 library jusifier;
 
-import 'dart:async';
-import 'dart:isolate';
-import 'dart:math' as math;
-import 'dart:collection' show Queue;
-
-String justify(String text, int cols) {
-  List<String> words = text.split(new RegExp(r"\s+"));
+String leftAlign(String text, int cols) {
+  List<String> paragraphs = text.split('\n');
 
   List<String> lines = new List<String>();
 
-  String currentLine = "";
+  for (String paragraph in paragraphs) {
+    List<String> words = paragraph.split(new RegExp(r'\s+'));
+    String currentLine = "";
 
-  for (String word in words) {
-    if ((currentLine + word).length < cols) {
-      if (currentLine == "") {
-        currentLine += word;
+    for (String word in words) {
+      if (currentLine.length + 1 + word.length > cols) {
+        lines.add(currentLine);
+        currentLine = word;
       } else {
-        currentLine += " " + word;
+        if (currentLine != "") {
+          currentLine += " ";
+        }
+        currentLine += word;
       }
-    } else {
-      lines.add(currentLine);
-      currentLine = word; 
     }
+
+    lines.add(currentLine);
   }
 
-  lines.add(currentLine);
 
-  return lines.join('\n').trim();
+  return lines.join('\n');
+}
+
+String rightAlign(String text, int cols) {
+  String leftAligned = leftAlign(text, cols);
+
+  List<String> lines = leftAligned.split('\n');
+
+  for (int i = 0; i < lines.length; i++) {
+    lines[i] = lines[i].padLeft(cols, ' ');
+  }
+
+  return lines.join('\n');
 }
