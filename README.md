@@ -14,4 +14,4 @@ $ cd <demo-name>
 $ pub serve
 ```
 
-### Go to localhost:8080 in your browser. 
+Go to [localhost:8080](http://localhost:8080) in your browser. 
