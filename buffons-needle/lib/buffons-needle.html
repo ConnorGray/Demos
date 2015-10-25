@@ -1,0 +1,39 @@
+<link rel="import" href="../../packages/polymer/polymer.html">
+
+<link rel="import" href="../../packages/paper_elements/paper_input.html">
+<link rel="import" href="../../packages/paper_elements/paper_button.html">
+<link rel="import" href="../../packages/paper_elements/paper_slider.html">
+
+<polymer-element name="buffons-needle">
+  <template>
+    <style>
+     paper-button.colored {
+         background: #4285f4;
+         color: #fff;
+     }
+    </style>
+
+    <div class="row">
+      <div class="columns small-12">
+        <canvas id="stage" style="border: 1px solid black" width="{{WIDTH}}" height="{{HEIGHT}}"></canvas>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="columns small-12">
+        <paper-button raised class="colored" on-click="{{addSticks}}}">Add Sticks</paper-button>
+
+        <b>Total Sticks: </b><span>{{totalSticks}}</span>
+        <b>Crossed Sticks: </b><span>{{crossedSticks}}</span>
+        <b>Ratio: </b><span>{{ratio}}</span>
+        <br/>
+
+        <h5 style="margin: 17px 0 5px 0">Number of Sticks to Add</h5>
+        <paper-slider style="width: {{WIDTH}}px;" pin snaps min="0" max="10000"
+                      value="{{numberOfSticksToAdd}}" step="100"></paper-slider>
+      </div>
+    </div>
+  </template>
+  <script type="application/dart" src="buffons-needle.dart"></script>
+</polymer-element>
+

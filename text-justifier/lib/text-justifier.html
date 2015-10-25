@@ -1,0 +1,40 @@
+<link rel="import" href="../../packages/polymer/polymer.html">
+
+<link rel="import" href="../../packages/paper_elements/paper_input.html">
+<link rel="import" href="../../packages/paper_elements/paper_button.html">
+<link rel="import" href="../../packages/paper_elements/paper_input_decorator.html">
+<link rel="import" href="../../packages/paper_elements/paper_autogrow_textarea.html">
+
+<polymer-element name="text-justifier">
+  <template>
+    <style>
+     paper-button.colored {
+         background: #4285f4;
+         color: #fff;
+     }
+    </style>
+
+    <div class="row">
+      <div class="columns small-12">
+        <paper-input-decorator label="Body" floatingLabel>
+          <paper-autogrow-textarea>
+            <textarea value="{{inputText}}"></textarea>
+          </paper-autogrow-textarea>
+        </paper-input-decorator>
+
+        <!-- <paper-input-decorator label="Body" floatingLabel>
+        <paper-autogrow-textarea>
+        <textarea value="{{outputTextArea}}"></textarea>
+        </paper-autogrow-textarea>
+        </paper-input-decorator>
+        -->
+
+        <div class="panel" style="white-space: pre">{{outputText}}</div>
+
+        <paper-input value="{{columns | asInteger}}" floatingLabel label="Columns"></paper-input>
+      </div>
+    </div>
+  </template>
+  <script type="application/dart" src="text-justifier.dart"></script>
+</polymer-element>
+

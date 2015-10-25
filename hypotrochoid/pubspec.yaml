@@ -1,0 +1,16 @@
+name: hypotrochoid 
+version: 0.0.1
+dependencies:
+  polymer: any
+  browser: any
+  core_elements: any
+  paper_elements: any
+  stagexl: any
+transformers:
+  - polymer:
+      entry_points:
+        - web/index.html
+      js: true
+  - $dart2js:
+      commandLineOptions: [--show-package-warnings]
+    
