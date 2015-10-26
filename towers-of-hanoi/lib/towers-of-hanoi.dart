@@ -1,33 +1,53 @@
 import 'dart:html';
 import 'package:stagexl/stagexl.dart';
 import 'package:polymer/polymer.dart';
-import 'package:towers_of_hanoi/solvers.dart' as solvers;
 import 'dart:math';
 import 'dart:async';
 import 'dart:collection';
-import 'dart:isolate';
+
+import 'package:towers_of_hanoi/solvers.dart';
+
+class Tower extends Sprite {
+  final int center;
+  final Queue<Shape> disks = new Queue<Shape>();
+
+  Tower(this.center) {
+    this.graphics.beginPath();
+    this.graphics.rect(center - 20, TowersOfHanoiElement.HEIGHT * .2, 40, TowersOfHanoiElement.HEIGHT * .8);
+    this.graphics.fillColor(Color.Brown);
+    this.graphics.strokeColor(Color.Brown, 1);
+    this.graphics.closePath();
+  }
+
+  void removeDisks() {
+    for (int i = 0; i < disks.length; i++) {
+      disks.elementAt(i).removeFromParent();
+    }
+    disks.clear();
+  }
+}
 
 @CustomTag('towers-of-hanoi')
 class TowersOfHanoiElement extends PolymerElement {
-  static final int HEIGHT = 600;
   static final int WIDTH = 1000;
+  static final int HEIGHT = 600;
+
+  @observable final int DISPLAY_WIDTH = WIDTH;
+  @observable final int DISPLAY_HEIGHT = HEIGHT;
 
   static final int MAX_DISK_WIDTH = (WIDTH / 4.0).toInt();
-
-  @observable final int DISPLAY_HEIGHT = HEIGHT;
-  @observable final int DISPLAY_WIDTH = WIDTH;
+  double MAX_DISK_HEIGHT = 0.0;
 
   @observable int numberOfDisks = 5;
+  @observable double movesPerSecond = 1.0;
   @observable int steps = 0;
+  @observable bool playing = false;
 
-  final int towerACenter = ((WIDTH / 4.0) * 1).toInt();
-  final int towerBCenter = ((WIDTH / 4.0) * 2).toInt();
-  final int towerCCenter = ((WIDTH / 4.0) * 3).toInt();
-
-  final List<Queue<Shape>> towers = new List<Queue<Shape>>()
-    ..add(new Queue<Shape>())
-    ..add(new Queue<Shape>())
-    ..add(new Queue<Shape>());
+  List<Tower> towers = [
+    new Tower(((WIDTH / 4.0) * 1).toInt()),
+    new Tower(((WIDTH / 4.0) * 2).toInt()),  
+    new Tower(((WIDTH / 4.0) * 3).toInt())
+  ];
 
   // StageXL Variables
   Stage stage = null;
@@ -35,7 +55,7 @@ class TowersOfHanoiElement extends PolymerElement {
 
   final random = new Random();
 
-  List<List<int>> _moves;
+  List<Move> _moves = [];
 
   TowersOfHanoiElement.created() : super.created() {
     StageXL.stageOptions.renderEngine = RenderEngine.Canvas2D;
@@ -44,99 +64,104 @@ class TowersOfHanoiElement extends PolymerElement {
     this.renderLoop = new RenderLoop();
     this.renderLoop.addStage(stage);
 
-    this.stage.addChild(_createTower(towerACenter));
-    this.stage.addChild(_createTower(towerBCenter));
-    this.stage.addChild(_createTower(towerCCenter));
+    for (Tower tower in this.towers) {
+      this.stage.addChild(tower);
+    }
 
     _reset();
   }
 
-  void showNextMove() async {
-    if (this._moves == null) {
-      return;
-    } else if (this._moves.isEmpty) {
-      return;
+  void _reset() async {
+    this.renderLoop.juggler.clear();
+    this._moves = [];
+    this.steps = 0;
+    this.MAX_DISK_HEIGHT = (HEIGHT * .8) / this.numberOfDisks;
+
+    for (Tower tower in this.towers) {
+      tower.removeDisks();
     }
 
-    List<int> move = this._moves.removeAt(0);
+    _initDisks();
 
-    Shape disk = towers[move[0]].removeLast();
-    towers[move[1]].addLast(disk);
-
-    if (move[1] == 0) {
-      disk.x = towerACenter;
-    }
-    else if (move[1] == 1) {
-      disk.x = towerBCenter;
-    }
-    else if (move[1] == 2) {
-      disk.x = towerCCenter;
-    }
-
-    double diskHeight = (HEIGHT * .8) / this.numberOfDisks;
-
-    disk.y = HEIGHT - diskHeight * (towers[move[1]].length-1) - (diskHeight / 2);
-
-    this.steps++;
-    
+    this._moves = await getMovesRecursive(this.numberOfDisks);
   }
 
-  void onStartButtonPressed() {
-    _reset();
+  void numberOfDisksChanged() async {
+    this.playing = false;
+    await _reset();
+  }
+
+  void onTogglePlayingButtonPressed() async {
+    await _reset();
+    playing = !playing;
+
+    if (playing) {
+      void animateNextMove() {
+        if (this._moves.isEmpty) {
+          this.playing = false;
+          return;
+        } 
+
+        Move move = this._moves.removeAt(0);
+
+        Shape disk = towers[move.from].disks.removeLast();
+        towers[move.to].disks.addLast(disk);
+
+        Tween tween = new Tween(disk, 1 / this.movesPerSecond, Transition.linear);
+        tween.animate.x.to(towers[move.to].center);
+        tween.animate.y.to(HEIGHT - MAX_DISK_HEIGHT * (towers[move.to].disks.length - 1));
+        tween.onComplete = () {
+          this.steps++;
+          animateNextMove();
+        };
+
+        this.renderLoop.juggler.add(tween);
+      }
+
+      animateNextMove();
+    } else {
+      this.renderLoop.juggler.clear();
+    }
   }
 
   void onShowNextMoveButtonPressed() {
     showNextMove();
   }
 
-  void _reset() async {
-    this._moves = null;
-    this.steps = 0;
-
-    for (int i = 0; i < 3; i++) {
-      for (int k = 0; k < towers[i].length; k++) {
-        this.stage.removeChild(towers[i].elementAt(k));
-      }
-      towers[i].clear();
+  void showNextMove() {
+    if (this._moves.isEmpty) {
+      return;
     }
 
-    _initDisks();
+    Move move = this._moves.removeAt(0);
 
-    this._moves = await solvers.getMovesRecursive(this.numberOfDisks);
-  }
+    Shape disk = towers[move.from].disks.removeLast();
+    towers[move.to].disks.addLast(disk);
 
-  void numberOfDisksChanged() {
-    _reset();
+    disk.x = towers[move.to].center;
+    disk.y = HEIGHT - MAX_DISK_HEIGHT * (towers[move.to].disks.length-1);
+
+    this.steps++;
   }
 
   void _initDisks() {
-    double diskHeight = (HEIGHT * .8) / this.numberOfDisks;
-
     for (int i = 0; i < numberOfDisks; i++) {
       int size = numberOfDisks - i;
       int diskWidth = (MAX_DISK_WIDTH * (size / numberOfDisks)).toInt();
 
       Shape disk = new Shape()
         ..graphics.beginPath()
-        ..graphics.rectRound(-diskWidth / 2, -diskHeight / 2, diskWidth, diskHeight, 10, 0)
+        ..graphics.rect(-diskWidth / 2, -MAX_DISK_HEIGHT/ 2, diskWidth, MAX_DISK_HEIGHT)
         ..graphics.strokeColor(Color.Black, 1)
         ..graphics.fillColor(Color.BlanchedAlmond)
-        ..graphics.closePath();
+        ..graphics.closePath()
+        ..pivotY = MAX_DISK_HEIGHT / 2;
 
-      disk.x = towerACenter;
-      disk.y = HEIGHT - diskHeight * i - (diskHeight / 2);
+      disk.x = towers[0].center;
+      disk.y = HEIGHT - MAX_DISK_HEIGHT * i;
 
-      towers[0].addLast(disk);
+      towers[0].disks.addLast(disk);
       this.stage.addChild(disk);
     }
-  }
-
-  Shape _createTower(int center) {
-    return new Shape()
-      ..graphics.beginPath()
-      ..graphics.rect(center - 20, HEIGHT * .2, 40, HEIGHT * .8)
-      ..graphics.fillColor(Color.Brown)
-      ..graphics.strokeColor(Color.Brown, 1)
-      ..graphics.closePath();
   }
 }
