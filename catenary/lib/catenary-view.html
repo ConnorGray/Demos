@@ -1,10 +1,12 @@
-<link rel="import" href="packages/polymer/polymer.html">
+<link rel="import" href="../../packages/polymer/polymer.html">
 
 <polymer-element name="catenary-view">
   <template>
     <div class="row">
       <div class="columns small-12">
-        <canvas id="stage" style="border: 1px solid black" WIDTH="{{WIDTH}}" height="{{HEIGHT}}"></canvas>
+        <canvas id="stage" style="border: 1px solid black"
+                width="{{DISPLAY_WIDTH}}"
+                height="{{DISPLAY_HEIGHT}}"></canvas>
       </div>
     </div>
   </template>

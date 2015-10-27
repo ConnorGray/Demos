@@ -49,13 +49,13 @@ class TowersOfHanoiElement extends PolymerElement {
     new Tower(((WIDTH / 4.0) * 3).toInt())
   ];
 
-  // StageXL Variables
-  Stage stage = null;
-  RenderLoop renderLoop = null;
-
   final random = new Random();
 
   List<Move> _moves = [];
+
+  // StageXL Variables
+  Stage stage = null;
+  RenderLoop renderLoop = null;
 
   TowersOfHanoiElement.created() : super.created() {
     StageXL.stageOptions.renderEngine = RenderEngine.Canvas2D;
